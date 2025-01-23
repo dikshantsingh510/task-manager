@@ -1,101 +1,162 @@
-import Image from "next/image";
+"use client";
+
+import { useEffect, useState } from "react";
+import InfoCard from "@/components/InfoCard";
+import Navbar from "@/components/Navbar";
+import Card from "@/components/Card";
+import { Tooltip } from "@radix-ui/themes";
+import { BsClipboardX } from "react-icons/bs";
+import { TbProgress, TbProgressAlert, TbProgressCheck } from "react-icons/tb";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const router = useRouter();
+  const [totalData, setTotalData] = useState([]);
+  const [tasks, setTasks] = useState([]);
+  const [filter, setFilter] = useState("");
+  // console.table(filter);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const getTasksData = async () => {
+    const res = await fetch(`/api/tasks`);
+    const tasks = await res.json();
+    setTotalData(tasks);
+  };
+
+  const getFilteredData = async () => {
+    const res = await fetch(`/api/tasks?status=${filter}`);
+    const tasks = await res.json();
+    setTasks(tasks);
+  };
+
+  const handleDelete = async () => {
+    try {
+      const response = await fetch(`/api/tasks?clearAll=true`, {
+        method: "DELETE",
+      });
+      if (response.ok) {
+        const result = await response.json();
+        alert(result.message);
+        console.log("Task deleted:", result);
+        router.refresh();
+      }
+    } catch (error) {
+      alert(`Failed to delete task:`);
+      console.log("Failed to delete task:", error);
+    }
+  };
+
+  useEffect(() => {
+    getTasksData();
+    getFilteredData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filter]); // Add getFilteredData to the dependency array
+
+  return (
+    <div className="min-w-screen min-h-screen flex justify-center items-center font-manrope bg-background">
+      <p className="text-9xl font-black w-fit h-fit bg-text-center">
+        <span className="bg-text">T</span>
+        <span className="bg-text">a</span>
+        <span className="bg-text">s</span>
+        <span className="bg-text">k</span>
+      </p>
+      <div className="relative w-full max-w-screen-xl min-h-screen flex items-center flex-col gap-4 px-2 py-5 md:px-10 md:py-10 ">
+        {/* <span className="text-9xl font-black bg-clip-text text-transparent bg-gradient-to-br from-gray-200 to-gray-50  w-fit h-fit">
+          Task
+        </span> */}
+
+        <Navbar />
+        <div className="w-full min-h-[700px] rounded-xl bg-transparent flex justify-center items-start flex-wrap gap-4">
+          {/* <InfoCard /> */}
+          {/* Info card starts */}
+          <div className="bg-zinc-900 text-zinc-100 rounded-3xl w-80 h-72 flex flex-col p-6">
+            <div className=" w-full basis-1/5 flex items-center justify-between">
+              <p className=" text-lg font-medium">Overall information</p>
+
+              <Tooltip content="Clear all tasks">
+                <BsClipboardX
+                  className="w-5 h-5 cursor-pointer"
+                  onClick={handleDelete}
+                />
+              </Tooltip>
+            </div>
+
+            <div className=" w-full basis-2/5 flex justify-between items-start pt-2">
+              <div
+                className="w-[47%] flex justify-between items-center gap-2 cursor-pointer"
+                onClick={() => setFilter("")}
+              >
+                <span className="text-4xl font-bold">{totalData.length}</span>
+                <p className="text-zinc-600 text-sm leading-none">
+                  Total tasks for day
+                </p>
+              </div>
+              <div className="w-[1px]  h-8 bg-zinc-700 rounded-lg"></div>
+              <div className="w-[47%] flex justify-between items-center gap-2">
+                <span className="text-4xl font-bold">{tasks.length}</span>
+                <p className="text-zinc-600 text-sm leading-none">
+                  Filtered tasks result
+                </p>
+              </div>
+            </div>
+
+            <div className="w-full basis-3/5 flex gap-4 text-zinc-900">
+              <div className="subInfoCard" onClick={() => setFilter("pending")}>
+                <TbProgressAlert className="subInfoCard_icon" />
+                <span className="subInfoCard_heading">
+                  {
+                    totalData.filter((task) => {
+                      return task.status === "pending";
+                    }).length
+                  }
+                </span>
+                <p className="subInfoCard_text">Pending</p>
+              </div>
+              <div
+                className="subInfoCard"
+                onClick={() => setFilter("inprogress")}
+              >
+                <TbProgress className="subInfoCard_icon" />
+                <span className="subInfoCard_heading">
+                  {
+                    totalData.filter((task) => {
+                      return task.status === "inprogress";
+                    }).length
+                  }
+                </span>
+                <p className="subInfoCard_text">In Progress</p>
+              </div>
+              <div
+                className="subInfoCard"
+                onClick={() => setFilter("completed")}
+              >
+                <TbProgressCheck className="subInfoCard_icon" />
+                <span className="subInfoCard_heading">
+                  {
+                    totalData.filter((task) => {
+                      return task.status === "completed";
+                    }).length
+                  }
+                </span>
+                <p className="subInfoCard_text">Completed</p>
+              </div>
+            </div>
+          </div>
+          {/* Info card ends */}
+
+          {tasks.map((task) => {
+            return <Card key={task._id} task={task} />;
+          })}
+          {/* <Card />
+          <Card />
+          <Card />
+          <Card />
+          <Card />
+          <Card />
+          <Card />
+          <Card />
+          <Card /> */}
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </div>
     </div>
   );
 }

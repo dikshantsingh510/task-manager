@@ -3,19 +3,46 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
+  --background: #f0f0f0;
   --foreground: #171717;
 }
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
   }
-}
+} */
 
 body {
-  color: var(--foreground);
+  /* color: var(--foreground); */
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+}
+body::-webkit-scrollbar{
+  display: none;
+}
+
+.bg-text{
+  @apply bg-clip-text text-transparent bg-gradient-to-br from-gray-300 to-gray-50
+}
+
+.subInfoCard{
+  @apply h-full w-full rounded-2xl bg-zinc-200 flex justify-center items-center flex-col gap-1 cursor-pointer
+}
+.subInfoCard_icon{
+  @apply w-6 h-6
+}
+
+.subInfoCard_heading{
+  @apply text-3xl font-bold m-1
+}
+.subInfoCard_text{
+  @apply text-zinc-700 text-[12px] leading-none font-semibold
+}
+
+.bg-text-center{
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
 }
