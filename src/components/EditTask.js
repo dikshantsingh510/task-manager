@@ -1,14 +1,13 @@
 "use client";
 import React, { useState } from "react";
 import { Button, Dialog } from "@radix-ui/themes";
-import { useRouter } from "next/navigation";
+import { useTaskContext } from "@/context/TaskContext";
 
 const EditTask = ({ task }) => {
-  const router = useRouter();
+  const { updateTask } = useTaskContext();
   const { _id, title, description, status, createdAt } = task;
   const [formTitle, setFormTitle] = useState(title);
   const [formDescription, setFormDescription] = useState(description);
-  // console.log(formTitle, formDescription);
 
   const handleUpdate = async (event) => {
     event.preventDefault();
@@ -18,25 +17,7 @@ const EditTask = ({ task }) => {
       description: formDescription,
       status,
     };
-    try {
-      const response = await fetch(`/api/tasks`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-
-      });
-      if (response.ok){
-        const result = await response.json();
-        alert(result.message);
-        console.log("Task updated:", result);
-        router.refresh();
-      }
-    } catch (error) {
-      alert(`Failed to update task:`);
-      console.log("Failed to update task:", error);
-    }
+    await updateTask(data);
   };
 
   return (

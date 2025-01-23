@@ -1,40 +1,22 @@
 "use client";
 import { Dialog, DropdownMenu, Tooltip } from "@radix-ui/themes";
-import React, { useState } from "react";
+import React from "react";
 import { BsThreeDots } from "react-icons/bs";
 import { FiCheckCircle } from "react-icons/fi";
 import { HiMiniCalendarDateRange } from "react-icons/hi2";
 import { MdOutlineEdit, MdOutlineDeleteOutline } from "react-icons/md";
 import EditTask from "./EditTask";
-import { useRouter } from "next/navigation";
+import { useTaskContext } from "@/context/TaskContext";
+import CompleteLebel from "./CompleteLebel";
+import ProgressLebel from "./ProgressLebel";
+import PendingLebel from "./PendingLebel";
 
-const ProgressLebel = () => {
-  return (
-    <div className="text-sm font-semibold text-blue-600 bg-blue-100 w-fit h-fit text-center px-4 py-1.5 rounded-3xl">
-      In progress
-    </div>
-  );
-};
-const CompleteLebel = () => {
-  return (
-    <div className="text-sm font-semibold text-green-600 bg-green-100 w-fit h-fit text-center px-4 py-1.5 rounded-3xl">
-      Completed
-    </div>
-  );
-};
-const PendingLebel = () => {
-  return (
-    <div className="text-sm font-semibold text-yellow-600 bg-yellow-100 w-fit h-fit text-center px-4 py-1.5 rounded-3xl">
-      Pending
-    </div>
-  );
-};
+
 
 const Card = ({ task }) => {
-  const router = useRouter();
+  const { deleteTask, updateTask } = useTaskContext();
   const { _id, title, description, status, createdAt } = task;
   const date = new Date(createdAt).toLocaleDateString();
-  // console.log(date);
 
   const handleUpdate = async (event) => {
     event.preventDefault();
@@ -44,46 +26,9 @@ const Card = ({ task }) => {
       description,
       status: event.target.id,
     };
-    // console.log(event.target.id);
+  
 
-    try {
-      const response = await fetch(`/api/tasks`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-      if (response.ok) {
-        const result = await response.json();
-        console.log("Task updated:", result);
-        router.refresh();
-      }
-    } catch (error) {
-      alert(`Failed to update task:`);
-      console.log("Failed to update task:", error);
-    }
-  };
-
-  const handleDelete = async () => {
-    try {
-      const response = await fetch(`/api/tasks`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ _id }),
-      });
-      if (response.ok) {
-        const result = await response.json();
-        alert(result.message);
-        console.log("Task deleted:", result);
-        router.refresh();
-      }
-    } catch (error) {
-      alert(`Failed to delete task:`);
-      console.log("Failed to delete task:", error);
-    }
+    await updateTask(data);
   };
 
   return (
@@ -120,7 +65,9 @@ const Card = ({ task }) => {
                 className="cursor-pointer"
                 color="red"
                 shortcut={<MdOutlineDeleteOutline className="w-4 h-4" />}
-                onClick={handleDelete}
+                onClick={() => {
+                  deleteTask(_id);
+                }}
               >
                 Delete
               </DropdownMenu.Item>

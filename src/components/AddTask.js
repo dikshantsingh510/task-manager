@@ -1,39 +1,20 @@
 "use client";
 
 import React from "react";
-
 import { Button, Dialog } from "@radix-ui/themes";
-import { useRouter } from "next/navigation";
+import { useTaskContext } from "@/context/TaskContext";
 
 const AddTask = () => {
-  const router = useRouter();
+  const { addTask } = useTaskContext();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
-    const data = {
+    const newTaskData = {
       title: formData.get("title"),
       description: formData.get("description"),
     };
-
-    try {
-      const response = await fetch(`/api/tasks`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-      if (response.ok) {
-        const result = await response.json();
-        alert(result.message);
-        console.log("Task created:", result);
-        router.refresh();
-      }
-    } catch (error) {
-      alert(`Failed to create task:`);
-      console.log("Failed to create task:", error);
-    }
+    await addTask(newTaskData);
   };
 
   return (

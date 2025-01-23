@@ -2,6 +2,7 @@ import { Manrope } from "next/font/google";
 import "@radix-ui/themes/styles.css";
 import "./globals.css";
 import { Theme } from "@radix-ui/themes";
+import { TaskProvider } from "@/context/TaskContext";
 
 const manRope = Manrope({
   variable: "--font-manrope",
@@ -17,7 +18,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${manRope.variable}  font-sans`}>
-        <Theme>{children}</Theme>
+        <Theme>
+          <TaskProvider>{children}</TaskProvider>
+        </Theme>
       </body>
     </html>
   );
